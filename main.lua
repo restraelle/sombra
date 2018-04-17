@@ -12,17 +12,18 @@ function love.load()
 	saveG = 0;
 	saveB = 0;
 	
-	gui = sombra.new();
+	gui = sombra.new(0, 0);
+	
 	gui.add(sombra.newButton(30, 30, 200, 60, {label="on", onclick=test}));
 	gui.add(sombra.newButton(30, 120, 200, 60, {label="off", onclick=test2}));
-	
 	gui.add(sombra.newSlider(30, 300, 400, 10, {value=0.5}));
 	gui.add(sombra.newSlider(30, 350, 400, 10, {value=0.5}));
 	gui.add(sombra.newSlider(30, 400, 400, 10, {value=0.5}));
 	gui.add(sombra.newSlider(30, 450, 400, 10, {value=0.5}));
-	
 	gui.add(sombra.newButton(30, 220, 150, 30, {label="save", onclick=save}));
 	gui.add(sombra.newButton(250, 220, 150, 30, {label="load", onclick=ld}));
+	gui.add(sombra.newCheckbox(30, 480, 15, 15, {label="Square existence"}));
+	gui.add(sombra.newCheckbox(30, 500, 15, 15, {label="Shift square"}));
 	
 end
 
@@ -60,7 +61,10 @@ function love.update(dt)
 end
 
 function love.draw()
+	love.graphics.setBackgroundColor(15, 100, 200, 15);
 	love.graphics.setColor(255*r, 255*g, 255*b, 255);
-	love.graphics.rectangle("fill", 250, 10, 200, 200, corners, corners);
+	if(gui.getValue(9) == true) then
+		love.graphics.rectangle("fill", 250, 10, 200, 200, corners, corners);
+	end
 	gui.draw();
 end

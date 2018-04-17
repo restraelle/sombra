@@ -27,9 +27,13 @@ end
 
 function clamp(low, n, high) return math.min(math.max(n, low), high) end
 
-function sombra.new()
+function sombra.new(x, y)
 	local self = {};
 	self.container = {};
+	self.globalX = x;
+	self.globalY = y;
+	self.width = width;
+	self.height = height;
 	
 	self.add = function(element)
 		table.insert(self.container, element);
@@ -38,8 +42,8 @@ function sombra.new()
 	self.update = function(dt)
 		local mouseX, mouseY = lm.getPosition();
 		for i, v in pairs(self.container) do
-			if(mouseX > v.x and mouseX < (v.x + v.width)) then
-				if(mouseY > v.y and mouseY < (v.y + v.height)) then
+			if(mouseX > (v.x + self.globalX) and mouseX < (v.x + v.width + self.globalX)) then
+				if(mouseY > (v.y + self.globalY) and mouseY < (v.y + v.height + self.globalY)) then
 					if(lm.isDown(1) == true) then
 						v.isPressed = 1;
 					else
@@ -69,9 +73,8 @@ function sombra.new()
 	end
 	
 	self.draw = function()
-		lg.setColor(255, 255, 255, 255);
 		for i, v in pairs(self.container) do
-			v.draw();
+			v.draw(self.globalX, self.globalY);
 		end
 	end
   
@@ -91,13 +94,13 @@ function sombra.newButton(x, y, width, height, data)
 	self.transitionCalc = 0;
 	self.data = data;
 	
-	self.draw = function()
+	self.draw = function(x, y)
 		lg.setColor(220, 220, 220, 255);
-		lg.rectangle("line", self.x + (self.transitionCalc * 5), self.y + (self.transitionCalc * 5), self.width, self.height, 10, 10);
-		lg.rectangle("line", self.x+5, self.y+5, self.width, self.height, 10, 10);
+		lg.rectangle("line", x + self.x + (self.transitionCalc * 5), y + self.y + (self.transitionCalc * 5), self.width, self.height, 10, 10);
+		lg.rectangle("line", x + self.x+5, y + self.y+5, self.width, self.height, 10, 10);
 		
 		lg.setColor(255, 255, 255, 255);
-		lg.printf(self.data.label, self.x + (self.transitionCalc * 5), self.y + self.height/2-7 + (self.transitionCalc * 5), self.width, "center");
+		lg.printf(self.data.label, x + self.x + (self.transitionCalc * 5), y + self.y + self.height/2-7 + (self.transitionCalc * 5), self.width, "center");
 	end
 
 	self.update = function(dt)
@@ -139,11 +142,11 @@ function sombra.newSlider(x, y, width, height, data)
 	self.isHover = 0;
 	self.isTriggered = false;
 	
-	self.draw = function()
+	self.draw = function(x, y)
 		lg.setColor(255, 255, 255, 255);
-		lg.ellipse("fill", self.x + self.positionCalc, self.y + 5, self.handleSize, self.handleSize);
-		lg.rectangle("line", self.x, self.y, self.barWidth, 10);
-		lg.print(math.abs(self.value*100), self.x + self.width + 18, self.y-2);
+		lg.ellipse("fill", x + self.x + self.positionCalc, y + self.y + 5, self.handleSize, self.handleSize);
+		lg.rectangle("line", x + self.x, y + self.y, self.barWidth, 10);
+		lg.print(math.abs(self.value*100), x + self.x + self.width + 18, y + self.y-2);
 	end
 
 	self.update = function(dt, mouseX, mouseY)
@@ -176,6 +179,60 @@ function sombra.newSlider(x, y, width, height, data)
 	return self;
 end
 
+function sombra.newCheckbox(x, y, width, height, data)
+	local self = {};
+	self.x = x;
+	self.y = y;
+	self.width = width;
+	self.height = height;
+	self.unparsedData = data;
+	self.isPressed = false;
+	self.isHover = false;
+	self.isTriggered = false;
+	self.value = false;
+	self.data = data;
+	self.transition = 0;
+	self.transitionCalc = 0;
+	
+	self.getValue = function()
+		return self.value;
+	end
+	
+	self.setValue = function(value)
+		self.value = value;
+	end
+	
+	self.draw = function(x, y)
+		lg.setColor(255, 255, 255, 255);
+		lg.rectangle("line", x + self.x, y + self.y, self.width, self.height);
+		lg.setColor(255, 255, 255, self.transitionCalc*255);
+		lg.rectangle("fill", x + self.x, y + self.y, self.width, self.height);
+		lg.setColor(255, 255, 255, 255);
+		lg.printf(self.data.label, x + self.x + self.width + 8, y + self.y + 2, 200, "left");
+	end
+
+	self.update = function(dt)
+		if(self.isPressed == 1) then
+			if(self.isTriggered == false) then
+				self.isTriggered = true;
+				self.value = not self.value;
+				if(self.value == true) then
+					self.transition = 1;
+				else
+					self.transition = 0;
+				end
+			end
+		else
+			self.isTriggered = false;
+		end
+		
+		self.transitionCalc = lerp(self.transitionCalc, self.transition, 30, dt);
+		
+	end
+
+	return self;
+end
+
 function sombra.newElement(x, y, width, height, data)
 	local self = {};
 	self.x = x;
@@ -191,7 +248,7 @@ function sombra.newElement(x, y, width, height, data)
 	end
 	
 	self.setValue = function(value)
-		self.position = value*400;
+		
 	end
 	
 	self.draw = function()
