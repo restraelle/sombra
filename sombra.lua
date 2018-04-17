@@ -1,6 +1,6 @@
 --[[
 
-	SOMBRA
+	S O M B R A
 	a simple GUI library for simple people
 	
 	created by Raphael Restrepo
@@ -48,6 +48,7 @@ function sombra.new()
 					v.isHover = 1;
 				else
 					v.isHover = 0;
+					v.isPressed = 0;
 				end
 			else
 				v.isHover = 0;
@@ -57,16 +58,16 @@ function sombra.new()
 		for i, v in pairs(self.container) do
 			v.update(dt, mouseX, mouseY);
 		end
-		
-		
 	end
 	
 	self.getValue = function(index)
 		return self.container[index].getValue();
 	end
+	
 	self.setValue = function(index, value)
 		self.container[index].setValue(value);
 	end
+	
 	self.draw = function()
 		lg.setColor(255, 255, 255, 255);
 		for i, v in pairs(self.container) do
@@ -140,9 +141,9 @@ function sombra.newSlider(x, y, width, height, data)
 	
 	self.draw = function()
 		lg.setColor(255, 255, 255, 255);
-		lg.ellipse("fill", self.x + self.positionCalc, self.y, self.handleSize, self.handleSize);
-		lg.rectangle("line", self.x, self.y - 5, self.barWidth, 10);
-		lg.print(self.value, 10, 500);
+		lg.ellipse("fill", self.x + self.positionCalc, self.y + 5, self.handleSize, self.handleSize);
+		lg.rectangle("line", self.x, self.y, self.barWidth, 10);
+		lg.print(math.abs(self.value*100), self.x + self.width + 18, self.y-2);
 	end
 
 	self.update = function(dt, mouseX, mouseY)
@@ -151,7 +152,7 @@ function sombra.newSlider(x, y, width, height, data)
 		else
 		
 		end
-		if(self.isPressed > 0) then
+		if(self.isPressed == 1) then
 			if(self.isTriggered == false) then
 				self.isTriggered = true;
 			end
