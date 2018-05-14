@@ -106,12 +106,14 @@ function sombra.newButton(x, y, width, height, data)
 	self.data = data;
 	
 	self.draw = function(x, y)
+		lg.setColor(0, 0, 0, 100 * self.transitionCalc);
+		lg.rectangle("fill", x + self.x, y + self.y, self.width, self.height, 0, 0);
+		
 		lg.setColor(220, 220, 220, 255);
-		lg.rectangle("line", x + self.x + (self.transitionCalc * 5), y + self.y + (self.transitionCalc * 5), self.width, self.height, 10, 10);
-		lg.rectangle("line", x + self.x+5, y + self.y+5, self.width, self.height, 10, 10);
+		lg.rectangle("line", x + self.x, y + self.y, self.width, self.height, 0, 0);
 		
 		lg.setColor(255, 255, 255, 255);
-		lg.printf(self.data.label, x + self.x + (self.transitionCalc * 5), y + self.y + self.height/2-7 + (self.transitionCalc * 5), self.width, "center");
+		lg.printf(self.data.label, x + self.x, y + self.y + self.height/2-7, self.width, "center");
 	end
 
 	self.update = function(dt)
