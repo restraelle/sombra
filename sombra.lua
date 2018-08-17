@@ -46,8 +46,8 @@ function sombra.new(x, y)
 	self.width = width;
 	self.height = height;
 	
-	self.add = function(element)
-		table.insert(self.container, element);
+	self.add = function(id, element)
+		table.insert(self.container, id, element);
 	end
 	
 	self.update = function(dt)
@@ -138,6 +138,40 @@ function sombra.newButton(x, y, width, height, data)
 	return self;
 end
 
+function sombra.newInvisibleButton(x, y, width, height, data)
+	local self = {};
+	self.x = x;
+	self.y = y;
+	self.width = width;
+	self.height = height;
+	self.isPressed = 0;
+	self.isHover = 0;
+	self.isTriggered = false;
+	self.data = data;
+	
+	self.draw = function(x, y)
+		
+	end
+
+	self.update = function(dt)
+		if(self.isHover > 0) then
+		
+		else
+		
+		end
+		if(self.isPressed > 0) then
+			if(self.isTriggered == false) then
+				self.data.onclick();
+				self.isTriggered = true;
+			end
+		else
+			self.isTriggered = false;
+		end
+	end
+
+	return self;
+end
+
 function sombra.newSlider(x, y, width, height, data)
 	local self = {};
 	self.data = data;
@@ -154,12 +188,36 @@ function sombra.newSlider(x, y, width, height, data)
 	self.isPressed = 0;
 	self.isHover = 0;
 	self.isTriggered = false;
+	self.label = "";
+	self.labelWidth = 100;
+	self.maxDisplayValue = 100;
+	self.displayValueSuffix = "";
+	
+	if(self.data.label ~= nil) then
+		self.label = self.data.label;
+		self.x = self.x + self.labelWidth;
+	end
+	
+	if(self.data.labelWidth ~= nil) then
+		self.x = self.x - self.labelWidth;
+		self.labelWidth = self.data.labelWidth;
+		self.x = self.x + self.labelWidth;
+	end
+	
+	if(self.data.maxDisplayValue ~= nil) then
+		self.maxDisplayValue = self.data.maxDisplayValue;
+	end
+	
+	if(self.data.displayValueSuffix ~= nil) then
+		self.displayValueSuffix = self.data.displayValueSuffix;
+	end
 	
 	self.draw = function(x, y)
 		lg.setColor(255, 255, 255, 255);
+		lg.printf(self.label, x + self.x - self.labelWidth, y + self.y, self.labelWidth);
 		lg.ellipse("fill", x + self.x + self.positionCalc, y + self.y + 5, self.handleSize, self.handleSize);
 		lg.rectangle("line", x + self.x, y + self.y, self.barWidth, 10);
-		lg.print(math.abs(self.value*100), x + self.x + self.width + 18, y + self.y-2);
+		lg.print(math.ceil(self.value*self.maxDisplayValue) .. self.displayValueSuffix, x + self.x + self.width + 18, y + self.y-2);
 	end
 
 	self.update = function(dt, mouseX, mouseY)
@@ -171,12 +229,15 @@ function sombra.newSlider(x, y, width, height, data)
 		if(self.isPressed == 1) then
 			if(self.isTriggered == false) then
 				self.isTriggered = true;
+				
 			end
 			self.position = clamp(mouseX-self.x, 0, self.width);
+			love.mouse.setY(self.y+5);
 		else
 			self.isTriggered = false;
 		end
 		self.positionCalc = lerp(self.positionCalc, self.position, 20, dt);
+		
 		self.value = self.position/self.width;
 		self.data.value = self.value;
 	end
@@ -221,7 +282,7 @@ function sombra.newCheckbox(x, y, width, height, data)
 		lg.setColor(255, 255, 255, self.transitionCalc*255);
 		lg.rectangle("fill", x + self.x, y + self.y, self.width, self.height);
 		lg.setColor(255, 255, 255, 255);
-		lg.printf(self.data.label, x + self.x + self.width + 8, y + self.y + 2, 200, "left");
+		lg.printf(self.data.label, x + self.x + self.width + 8, y + self.y, 200, "left");
 	end
 
 	self.update = function(dt)
